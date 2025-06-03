@@ -90,7 +90,6 @@ def save_category_types(category_name, types):
         category_types[category_name] = types
     save_categories(categories, category_types)
 
-# ✅ Step 3: Call it once at the start
 categories = load_categories()[0]  # Load categories from file
 category_types = load_categories()[1]  # Load category types from file
 
@@ -170,11 +169,11 @@ def add_type():
     return jsonify({"message": "Type added successfully"}), 200
 
 def generate_confirmation_token(email):
-    serializer = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])  # Should now work with the correct secret key
+    serializer = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY']) 
     return serializer.dumps(email, salt='email-confirmation-salt')
 
 def confirm_token(token, expiration=3600):
-    serializer = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])  # Should now work with the correct secret key
+    serializer = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])  
     try:
         email = serializer.loads(
             token,
@@ -204,7 +203,7 @@ def signup():
         cursor = db.cursor()
 
         cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()  # This will store the result
+        user = cursor.fetchone() 
 
         if user is not None:
          return jsonify({"message": "Email already registered"}), 400
@@ -469,7 +468,7 @@ def forgot_password():
         token = serializer.dumps(email, salt="password-reset")
     
         reset_link = f"http://localhost:5000/#/reset-password?token={token}"
-      #  reset_link = f"http://localhost:5000/reset-password-screen?token={token}"
+      
   
 
         if send_reset_email(email, reset_link):
@@ -500,15 +499,12 @@ def reset_password():
             return jsonify({"status": "error", "message": "Missing new password"}), 400
 
         email = serializer.loads(token, salt="password-reset", max_age=3600)
-        #password_hash = generate_password_hash(new_password)
-       # password_hash = generate_password_hash(new_password, method='pbkdf2:sha256')
+     
         password_hash = bcrypt.generate_password_hash(new_password).decode('utf-8')
 
 
         db = get_db_connection()
         cursor = db.cursor()
-        #cursor.execute("UPDATE users SET password_hash = ? WHERE email = ?", (password_hash, email))
-       # cursor.execute("UPDATE users SET password_hash = %s WHERE email = %s", (password_hash, email))
         cursor.execute("UPDATE users SET password_hash = %s WHERE email = %s", (password_hash, email))
         db.commit()
 
